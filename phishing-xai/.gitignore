@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Model artefacts — large eval/train data excluded; serving files committed
+models/X_test.npy
+models/X_val.npy
+models/y_test.npy
+models/y_val.npy
+models/val_results.json
+models/*.pt
+models/*.pth
+models/shap_plots/
+
+# Dataset files
+data/raw/
+data/processed/
+*.csv
+*.parquet
+*.feather
+
+# Logs & temp files
+*.log
+*.tmp
+nohup.out
+
+# Environment / secrets
+.env
+.env.*
+*.pem
+*.key
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/secrets.toml
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/

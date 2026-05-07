@@ -1,0 +1,27 @@
+# API serving only — excludes torch, streamlit, notebook deps (not needed on Railway)
+
+# ML — pinned to match the Python 3.10 environment used to create the pkl files
+# catboost and xgboost are training-only; the deployed best model is lgbm.
+lightgbm==4.6.0
+scikit-learn==1.7.2
+
+# SHAP — pinned to match pkl creation environment
+shap==0.49.1
+matplotlib>=3.7.0
+
+# Data
+pandas>=2.0.0
+numpy>=1.24.0
+joblib>=1.3.0
+
+# Live extractor
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+python-whois>=0.9.0
+requests>=2.31.0
+
+# API
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.4.0
+python-multipart>=0.0.6

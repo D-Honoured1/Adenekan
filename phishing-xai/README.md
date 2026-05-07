@@ -1,3 +1,14 @@
+---
+title: PhishGuard XAI
+emoji: 🎣
+colorFrom: red
+colorTo: green
+sdk: streamlit
+sdk_version: 1.32.0
+app_file: app/streamlit_app.py
+pinned: false
+---
+
 # Phishing XAI — SHAP-Based Explainable Phishing Detection
 
 BSc Final Year Project · Redeemer's University

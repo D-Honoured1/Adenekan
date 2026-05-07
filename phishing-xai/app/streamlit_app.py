@@ -823,7 +823,7 @@ with tab_scanner:
         )
     with btn_col:
         scan_clicked = st.button(
-            "Scan", type="primary", disabled=not api_up, width="stretch",
+            "Scan", type="primary", disabled=not api_up,
         )
 
     if scan_clicked:

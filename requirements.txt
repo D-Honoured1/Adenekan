@@ -1,6 +1,0 @@
-streamlit
-plotly
-requests
-pandas
-numpy
-joblib

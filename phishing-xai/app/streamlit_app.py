@@ -447,9 +447,9 @@ def _predict_url(url: str) -> dict | None:
         r.raise_for_status()
         return r.json()
     except requests.exceptions.ConnectionError:
-        st.error(f"Cannot reach the API at {API_BASE}. Check that API_BASE_URL is set correctly.")
-    except Exception as e:
-        st.error(f"API error: {e}")
+        st.error("The backend went offline. Please refresh the page once the API is back online.")
+    except Exception:
+        st.error("Something went wrong while contacting the backend. Please try again shortly.")
     return None
 
 
@@ -459,9 +459,9 @@ def _predict_scaled(features: dict) -> dict | None:
         r.raise_for_status()
         return r.json()
     except requests.exceptions.ConnectionError:
-        st.error(f"Cannot reach the API at {API_BASE}. Check that API_BASE_URL is set correctly.")
-    except Exception as e:
-        st.error(f"API error: {e}")
+        st.error("The backend went offline. Please refresh the page once the API is back online.")
+    except Exception:
+        st.error("Something went wrong while contacting the backend. Please try again shortly.")
     return None
 
 
@@ -470,8 +470,8 @@ def _switch_model(model_name: str) -> bool:
         r = requests.post(f"{API_BASE}/switch-model", json={"model": model_name}, timeout=30)
         r.raise_for_status()
         return True
-    except Exception as e:
-        st.error(f"Failed to switch model: {e}")
+    except Exception:
+        st.error("Could not switch model — the backend is not responding. Please try again shortly.")
         return False
 
 
@@ -794,6 +794,22 @@ st.markdown(
     'Explainable Phishing URL Detection · PhiUSIIL Dataset · 7 Models</p>',
     unsafe_allow_html=True,
 )
+
+if not api_up:
+    st.markdown(
+        '<div style="background:rgba(243,139,168,0.08);border:1px solid rgba(243,139,168,0.35);'
+        'border-radius:10px;padding:16px 20px;margin-bottom:20px;">'
+        '<div style="font-weight:700;color:#F38BA8;font-size:1rem;margin-bottom:6px;">'
+        "⚠ Backend Offline"
+        "</div>"
+        '<div style="color:#BAC2DE;font-size:0.88rem;line-height:1.7;">'
+        "Live URL scanning, dataset validation, and evaluation mode are currently unavailable "
+        "because the prediction API cannot be reached.<br>"
+        "The <strong>Model Comparison</strong> tab still shows pre-computed results."
+        "</div>"
+        "</div>",
+        unsafe_allow_html=True,
+    )
 
 tab_scanner, tab_validation, tab_demo, tab_comparison = st.tabs([
     "🔍 Live URL Scanner",

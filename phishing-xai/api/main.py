@@ -93,7 +93,7 @@ def load_model():
     if explainer_path.exists():
         store.explainer, store.explainer_type = joblib.load(explainer_path)
     else:
-        X_background = np.load(MODELS_DIR / "X_background.npy")
+        X_background = _load_background()
         store.explainer, store.explainer_type = build_explainer(
             model_name, store.model, X_background
         )
@@ -138,6 +138,17 @@ class PredictionResponse(BaseModel):
 
 
 # ── helpers ───────────────────────────────────────────────────────────────────
+def _load_background() -> np.ndarray:
+    """Load SHAP background data, falling back to first 500 rows of X_test."""
+    bg_path = MODELS_DIR / "X_background.npy"
+    if bg_path.exists():
+        return np.load(bg_path)
+    x_path = MODELS_DIR / "X_test.npy"
+    if x_path.exists():
+        return np.load(x_path)[:500]
+    raise FileNotFoundError("No background data found (X_background.npy or X_test.npy).")
+
+
 def _check_ready():
     if store.model is None:
         raise HTTPException(
@@ -258,13 +269,19 @@ def switch_model(body: SwitchModelRequest):
             results = json.load(f)
         store.test_metrics = results.get(model_name, {})
 
-    explainer_path = MODELS_DIR / f"{model_name}_explainer.pkl"
-    if explainer_path.exists():
-        store.explainer, store.explainer_type = joblib.load(explainer_path)
-    else:
-        X_background = np.load(MODELS_DIR / "X_background.npy")
-        store.explainer, store.explainer_type = build_explainer(
-            model_name, store.model, X_background
+    try:
+        explainer_path = MODELS_DIR / f"{model_name}_explainer.pkl"
+        if explainer_path.exists():
+            store.explainer, store.explainer_type = joblib.load(explainer_path)
+        else:
+            X_background = _load_background()
+            store.explainer, store.explainer_type = build_explainer(
+                model_name, store.model, X_background
+            )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Model '{model_name}' loaded but explainer failed: {exc}",
         )
 
     print(f"[switch] model='{model_name}'  explainer='{store.explainer_type}'")

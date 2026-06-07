@@ -470,9 +470,18 @@ def _switch_model(model_name: str) -> bool:
         r = requests.post(f"{API_BASE}/switch-model", json={"model": model_name}, timeout=30)
         r.raise_for_status()
         return True
+    except requests.exceptions.ConnectionError:
+        st.error("The backend went offline. Please refresh the page once the API is back online.")
+    except requests.exceptions.HTTPError:
+        detail = ""
+        try:
+            detail = r.json().get("detail", "")
+        except Exception:
+            pass
+        st.error(f"Could not switch model: {detail}" if detail else "Could not switch model. Please try again shortly.")
     except Exception:
-        st.error("Could not switch model — the backend is not responding. Please try again shortly.")
-        return False
+        st.error("Could not switch model. Please try again shortly.")
+    return False
 
 
 def _fetch_demo_sample(label: int) -> dict | None:

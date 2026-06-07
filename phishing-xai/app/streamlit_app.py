@@ -151,6 +151,7 @@ label, .stSelectbox label, .stSlider label { color: #BAC2DE !important; }
     border: 1px solid #353558 !important;
     color: #CDD6F4 !important;
     border-radius: 8px;
+    caret-color: #A6E3A1 !important;
 }
 [data-testid="stTextInput"] input:focus {
     border-color: #A6E3A1 !important;

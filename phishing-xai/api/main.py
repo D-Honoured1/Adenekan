@@ -292,7 +292,11 @@ def predict_url(body: URLInput):
     Handled failure cases (all return a valid prediction using lexical features only):
       page timeout · connection refused · SSL error · non-HTML response
     """
-    result: ExtractionResult = live_extract(body.url, models_dir=str(MODELS_DIR))
+    url = body.url.strip()
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url
+
+    result: ExtractionResult = live_extract(url, models_dir=str(MODELS_DIR))
 
     if result.fetch_error:
         caveat = (

@@ -431,6 +431,9 @@ def extract(
     -------
     ExtractionResult
     """
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url
+
     feature_names: list[str] = joblib.load(f"{models_dir}/feature_names.pkl")
     imputer                   = joblib.load(f"{models_dir}/imputer.pkl")
     training_means: dict[str, float] = dict(zip(feature_names, imputer.statistics_))

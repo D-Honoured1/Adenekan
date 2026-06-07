@@ -21,9 +21,7 @@ build/
 *.ipynb_checkpoints
 
 # Model artefacts — large eval/train data excluded; serving files committed
-models/X_test.npy
 models/X_val.npy
-models/y_test.npy
 models/y_val.npy
 models/val_results.json
 models/*.pt

@@ -60,6 +60,8 @@ class _ModelStore:
     feature_names: list[str] = []
     model_name: str = ""
     test_metrics: dict = {}
+    X_test: np.ndarray | None = None
+    y_test: np.ndarray | None = None
 
 
 store = _ModelStore()
@@ -97,6 +99,15 @@ def load_model():
         )
 
     print(f"[startup] Loaded model='{model_name}'  explainer='{store.explainer_type}'")
+
+    x_path = MODELS_DIR / "X_test.npy"
+    y_path = MODELS_DIR / "y_test.npy"
+    if x_path.exists() and y_path.exists():
+        store.X_test = np.load(x_path)
+        store.y_test = np.load(y_path)
+        print(f"[startup] Loaded test set: {len(store.X_test):,} samples")
+    else:
+        print("[startup] X_test.npy / y_test.npy not found — demo mode unavailable")
 
 
 # ── schemas ───────────────────────────────────────────────────────────────────
@@ -258,6 +269,21 @@ def switch_model(body: SwitchModelRequest):
 
     print(f"[switch] model='{model_name}'  explainer='{store.explainer_type}'")
     return {"status": "ok", "model": store.model_name, "explainer_type": store.explainer_type}
+
+
+@app.get("/demo-sample/{label}")
+def demo_sample(label: int):
+    """Return a random sample from the held-out test set for the given label (0=legitimate, 1=phishing)."""
+    if store.X_test is None or store.y_test is None:
+        raise HTTPException(status_code=503, detail="Test set not loaded on this server.")
+    if label not in (0, 1):
+        raise HTTPException(status_code=400, detail="label must be 0 (legitimate) or 1 (phishing).")
+    indices = np.where(store.y_test == label)[0]
+    if len(indices) == 0:
+        raise HTTPException(status_code=404, detail=f"No samples with label={label} in test set.")
+    idx = int(np.random.default_rng().choice(indices))
+    features = dict(zip(store.feature_names, store.X_test[idx].tolist()))
+    return {"features": features, "label": label}
 
 
 @app.post("/predict", response_model=PredictionResponse)

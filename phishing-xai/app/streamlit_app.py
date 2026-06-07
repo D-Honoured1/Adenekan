@@ -19,7 +19,6 @@ import os
 import sys
 from pathlib import Path
 
-import joblib
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
@@ -476,22 +475,16 @@ def _switch_model(model_name: str) -> bool:
         return False
 
 
-def _load_demo_sample(label: int) -> dict | None:
-    x_path  = MODELS_DIR / "X_test.npy"
-    y_path  = MODELS_DIR / "y_test.npy"
-    fn_path = MODELS_DIR / "feature_names.pkl"
-    if not (x_path.exists() and y_path.exists() and fn_path.exists()):
-        st.error("Test-set files missing in models/. Run evaluate.py first.")
-        return None
-    X_test        = np.load(x_path)
-    y_test        = np.load(y_path)
-    feature_names = joblib.load(fn_path)
-    indices = np.where(y_test == label)[0]
-    if len(indices) == 0:
-        st.error(f"No samples with label={label} in test set.")
-        return None
-    idx = np.random.default_rng().choice(indices)
-    return dict(zip(feature_names, X_test[idx].tolist()))
+def _fetch_demo_sample(label: int) -> dict | None:
+    try:
+        r = requests.get(f"{API_BASE}/demo-sample/{label}", timeout=10)
+        r.raise_for_status()
+        return r.json()["features"]
+    except requests.exceptions.ConnectionError:
+        st.error("The backend went offline. Please refresh the page once the API is back online.")
+    except Exception:
+        st.error("Something went wrong while fetching the demo sample. Please try again shortly.")
+    return None
 
 
 # ── Plotly chart builders ─────────────────────────────────────────────────────
@@ -1018,7 +1011,7 @@ with tab_demo:
 
     if demo_phish:
         with st.spinner("Loading phishing sample from test set…"):
-            feats = _load_demo_sample(label=1)
+            feats = _fetch_demo_sample(label=1)
             if feats:
                 res = _predict_scaled(feats)
                 if res:
@@ -1027,7 +1020,7 @@ with tab_demo:
 
     if demo_legit:
         with st.spinner("Loading legitimate sample from test set…"):
-            feats = _load_demo_sample(label=0)
+            feats = _fetch_demo_sample(label=0)
             if feats:
                 res = _predict_scaled(feats)
                 if res:

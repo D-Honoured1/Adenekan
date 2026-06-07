@@ -65,5 +65,3 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
-models/*.pkl
-models/*.npy
